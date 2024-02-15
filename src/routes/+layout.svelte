@@ -4,7 +4,7 @@
 	import Navbar from '../components/Navbar.svelte';
 </script>
 
-<div data-theme="emerald">
+<div data-theme="winter">
 	<header>
 		<Navbar />
 	</header>
