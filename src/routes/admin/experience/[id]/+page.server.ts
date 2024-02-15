@@ -2,7 +2,6 @@ import prisma from '$lib/prisma.js';
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ request, params }) => {
-	console.log('Edit experience', params);
 	const experienceId = +params.id;
 
 	const experienceData = await prisma.experience.findUnique({

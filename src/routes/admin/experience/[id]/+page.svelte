@@ -1,6 +1,5 @@
 <script lang="ts">
 	export let data;
-	console.log(data);
 	$: experience = data.experienceData;
 </script>
 
