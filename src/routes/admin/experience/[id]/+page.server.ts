@@ -1,5 +1,5 @@
 import prisma from '$lib/prisma.js';
-import delay from '$utilities/delay';
+import delay from '$utils/delay';
 import { error, redirect } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
@@ -52,8 +52,6 @@ export const actions = {
 				form
 			};
 		}
-
-		await delay(3000);
 
 		await prisma.experience.update({
 			where: {

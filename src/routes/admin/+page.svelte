@@ -1,10 +1,13 @@
 <script lang="ts">
-	import { Role, type Experience, type User } from '@prisma/client';
+	import { Role } from '@prisma/client';
 	import { applyAction, enhance } from '$app/forms';
-	import { invalidate, invalidateAll } from '$app/navigation';
+	import { invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
-	import formatPrice from '$utilities/formatPrice';
-	import formatDate from '$utilities/formatDate';
+	import formatPrice from '$utils/formatPrice';
+	import formatDate from '$utils/formatDate';
+	import { Button } from '$lib/components/ui/button';
+	import * as Table from '$lib/components/ui/table';
+	import * as Tabs from '$lib/components/ui/tabs';
 
 	export let data;
 
@@ -13,60 +16,62 @@
 
 <h1 class="mb-4 text-4xl font-bold">Admin Tools</h1>
 
-<div class="my-8">
-	<h2 class="mb-6 flex items-center text-3xl font-bold">
-		Experiences <a href="/admin/experience/create" class="btn btn-primary btn-sm ml-auto"
-			>Create Experience +</a
-		>
-	</h2>
-
-	<table class="table table-zebra table-pin-cols table-xs">
-		<thead>
-			<tr>
-				<th></th>
-				<th>Name</th>
-				<th>Price</th>
-				<th>Created At</th>
-				<th>Updated At</th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each experiences as experience (experience.id)}
-				<tr>
-					<td>{experience.id}</td>
-					<td>{experience.name}</td>
-					<td>{formatPrice(experience.price)}</td>
-					<td>{formatDate(experience.createdAt)}</td>
-					<td>{formatDate(experience.updatedAt)}</td>
-					<td>
-						<a class="btn btn-neutral btn-xs" href={'/admin/experience/' + experience.id}>Edit</a>
-					</td>
-				</tr>
-			{/each}
-		</tbody>
-	</table>
-</div>
-<div class="divider"></div>
-<div class="my-8">
-	<h2 class="mb-6 text-3xl font-bold">Users</h2>
-	<table class="table table-zebra table-pin-cols table-xs">
-		<thead>
-			<tr>
-				<th></th>
-				<th>Username</th>
-				<th>Role</th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each users as user (user.username)}
-				{@const isUser = user.role === Role.USER}
-				<tr>
-					<td>{user.id}</td>
-					<td>{user.username}</td>
-					<td>{user.role}</td>
-					<td>
+<Tabs.Root value="experiences">
+	<Tabs.List class="mb-8">
+		<Tabs.Trigger value="experiences">Experiences</Tabs.Trigger>
+		<Tabs.Trigger value="users">Users</Tabs.Trigger>
+	</Tabs.List>
+	<Tabs.Content value="experiences">
+		<div class="my-4">
+			<Button href="/admin/experience/create" variant="secondary">Create Experience +</Button>
+		</div>
+		<Table.Root>
+			<Table.Caption class="sr-only">List of active experiences</Table.Caption>
+			<Table.Header>
+				<Table.Row>
+					<Table.Head>ID</Table.Head>
+					<Table.Head>Name</Table.Head>
+					<Table.Head>Price</Table.Head>
+					<Table.Head>Created At</Table.Head>
+					<Table.Head>Updated At</Table.Head>
+					<Table.Head></Table.Head>
+				</Table.Row>
+			</Table.Header>
+			<Table.Body>
+				{#each experiences as experience (experience.id)}
+					{@const editURL = `/admin/experience/${experience.id}`}
+					<Table.Row>
+						<Table.Cell>{experience.id}</Table.Cell>
+						<Table.Cell>{experience.name}</Table.Cell>
+						<Table.Cell>{formatPrice(experience.price)}</Table.Cell>
+						<Table.Cell>{formatDate(experience.createdAt)}</Table.Cell>
+						<Table.Cell>{formatDate(experience.updatedAt)}</Table.Cell>
+						<Table.Cell>
+							<Button variant="secondary" size="sm" href={editURL}>Edit</Button>
+						</Table.Cell>
+					</Table.Row>
+				{/each}
+			</Table.Body>
+		</Table.Root>
+	</Tabs.Content>
+	<Tabs.Content value="users">
+		<Table.Root>
+			<Table.Header>
+				<Table.Row>
+					<Table.Head>ID</Table.Head>
+					<Table.Head>Username</Table.Head>
+					<Table.Head>Role</Table.Head>
+					<!-- <Table.Head></Table.Head> -->
+				</Table.Row>
+			</Table.Header>
+			<Table.Body>
+				{#each users as user (user.username)}
+					{@const isUser = user.role === Role.USER}
+					<Table.Row>
+						<Table.Cell>{user.id}</Table.Cell>
+						<Table.Cell>{user.username}</Table.Cell>
+						<Table.Cell>{user.role}</Table.Cell>
+						<!-- <Table.Cell>
 						{#if isUser}
 							<form
 								novalidate
@@ -80,12 +85,13 @@
 								}}
 							>
 								<input type="hidden" name="user_id" value={user.id} />
-								<button type="submit" class="btn btn-error btn-xs">Delete</button>
+								<Button type="submit" variant="destructive" size="sm">Delete</Button>
 							</form>
 						{/if}
-					</td>
-				</tr>
-			{/each}
-		</tbody>
-	</table>
-</div>
+					</Table.Cell> -->
+					</Table.Row>
+				{/each}
+			</Table.Body>
+		</Table.Root>
+	</Tabs.Content>
+</Tabs.Root>
