@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import { Role } from '@prisma/client';
 	import Button from '../ui/button/button.svelte';
 
 	$: shortenedName = $page.data.username?.charAt(0).toUpperCase();
@@ -31,6 +32,11 @@
 						<DropdownMenu.Group>
 							<DropdownMenu.Label>My Account</DropdownMenu.Label>
 							<DropdownMenu.Separator />
+							{#if $page.data.role === Role.ADMIN}
+								<DropdownMenu.Item>
+									<a href="/admin" class="block w-full">Admin Tools</a>
+								</DropdownMenu.Item>
+							{/if}
 							<DropdownMenu.Item>
 								<a href="/dashboard" class="block w-full">Dashboard</a>
 							</DropdownMenu.Item>
