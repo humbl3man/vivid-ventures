@@ -42,7 +42,6 @@ export const actions = {
 				}
 			});
 
-			// TODO: send a different message to user so bad actors cant figure already existing username
 			if (usernameExists) {
 				return message(form, 'Invalid username or password. Please try again');
 			}
@@ -59,6 +58,7 @@ export const actions = {
 				}
 			});
 
+			// create session and cookie for auth
 			const session = await lucia.createSession(userId, {});
 			const sessionCookie = await lucia.createSessionCookie(session.id);
 			event.cookies.set(sessionCookie.name, sessionCookie.value, {

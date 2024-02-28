@@ -1,54 +1,18 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-
-	import { superForm } from 'sveltekit-superforms/client';
+	import * as Card from '$lib/components/ui/card';
+	import LoginForm from './LoginForm.svelte';
 
 	export let data;
-	const { form, errors, message } = superForm(data.form);
 </script>
 
-<h1 class="mb-6 text-4xl font-bold">Login</h1>
-
-<form method="post" novalidate use:enhance class="max-w-[500px]">
-	<div class="mb-4">
-		<label for="username">Username:</label>
-		<input
-			type="text"
-			name="username"
-			id="username"
-			class="input input-bordered w-full"
-			minlength="3"
-			maxlength="31"
-			required
-			bind:value={$form.username}
-		/>
-		{#if $errors?.username}
-			<p class="text-red-600">{$errors.username[0]}</p>
-		{/if}
-	</div>
-	<div class="mb-4">
-		<label for="password">Password:</label>
-		<input
-			type="password"
-			name="password"
-			id="password"
-			class="input input-bordered w-full"
-			required
-			minlength="6"
-			maxlength="255"
-			bind:value={$form.password}
-		/>
-		{#if $errors?.password}
-			<p class="text-red-600">{$errors.password[0]}</p>
-		{/if}
-	</div>
-	{#if $message}
-		<div class="my-3 text-red-500">{$message}</div>
-	{/if}
-	<div>
-		<button type="submit" class="btn btn-neutral">Login</button>
-		<p class="mt-2">
-			Don't have an account? <a href="/sign-up" class="link link-secondary">Sign Up</a>
-		</p>
-	</div>
-</form>
+<Card.Root class="mx-auto max-w-lg">
+	<Card.Header>
+		<Card.Title tag="h1" class="text-2xl">Sign In to Your Account</Card.Title>
+	</Card.Header>
+	<Card.Content>
+		<LoginForm data={data.form} />
+	</Card.Content>
+	<Card.Footer>
+		Don't have an account? <a href="/sign-up" class="ml-2 text-blue-500 hover:underline">Sign Up</a>
+	</Card.Footer>
+</Card.Root>

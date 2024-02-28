@@ -11,6 +11,5 @@
 		<div class="card-title">
 			{experience.name}
 		</div>
-		<p>{experience.description}</p>
 	</div>
 </div>

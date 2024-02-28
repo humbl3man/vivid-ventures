@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import Navbar from '$lib/components/common/Navbar.svelte';
 	import '../app.css';
-	import Navbar from '../components/Navbar.svelte';
 </script>
 
-<div data-theme="winter">
+<div>
 	<header>
 		<Navbar />
 	</header>

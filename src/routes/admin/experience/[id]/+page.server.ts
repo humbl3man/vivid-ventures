@@ -1,51 +1,81 @@
 import prisma from '$lib/prisma.js';
-import { error } from '@sveltejs/kit';
+import delay from '$utilities/delay';
+import { error, redirect } from '@sveltejs/kit';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { z } from 'zod';
 
-export const load = async ({ request, params }) => {
-	const experienceId = +params.id;
+const schema = z.object({
+	name: z
+		.string()
+		.min(5, 'Name must be at least 5 characters')
+		.max(100, 'Name must be no longer than 100 characters'),
+	description: z
+		.string()
+		.min(5, 'Description must be at least 5 characters')
+		.max(10000, 'Description must be no longer than 10000 characters'),
+	price: z
+		.number({
+			required_error: 'Price is required'
+		})
+		.min(3, 'Please enter minimum of 3 digits')
+		.default(999),
+	imageUrl: z.string().url('Please enter a valid url').default('https://www.example.com')
+});
 
-	const experienceData = await prisma.experience.findUnique({
+export const load = async ({ params }) => {
+	const experience = await prisma.experience.findUnique({
 		where: {
-			id: experienceId
+			id: Number(params.id)
 		}
 	});
 
-	if (!experienceData) {
+	if (!experience) {
 		error(404, {
 			message: 'Experience not found'
 		});
 	}
 
+	const form = await superValidate(experience, zod(schema));
+
 	return {
-		experienceData
+		form
 	};
 };
 
 export const actions = {
-	default: async ({ request }) => {
-		const formData = await request.formData();
-		const id = Number(formData.get('id'));
-		const name = formData.get('name') as string;
-		const description = formData.get('description') as string;
-		const price = Number(formData.get('price')) ?? 0;
-		const imageUrl = formData.get('imageUrl') as string;
+	update: async ({ request, params }) => {
+		const form = await superValidate(request, zod(schema));
 
-		if (!name || !description || !price || !imageUrl) {
-			error(401, {
-				message: 'Please provide required information'
-			});
+		if (!form.valid) {
+			return {
+				form
+			};
 		}
+
+		await delay(3000);
 
 		await prisma.experience.update({
 			where: {
-				id
+				id: Number(params.id)
 			},
 			data: {
-				name,
-				description,
-				price,
-				imageUrl
+				name: form.data.name,
+				description: form.data.description,
+				price: form.data.price,
+				imageUrl: form.data.imageUrl
 			}
 		});
+
+		return message(form, 'Experience updated');
+	},
+	delete: async ({ params }) => {
+		await prisma.experience.delete({
+			where: {
+				id: Number(params.id)
+			}
+		});
+
+		redirect(302, '/admin');
 	}
 };

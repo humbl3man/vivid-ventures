@@ -2,25 +2,16 @@ import { lucia } from '$lib/auth';
 import prisma from '$lib/prisma.js';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { Argon2id } from 'oslo/password';
-import { z } from 'zod';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-
-const schema = z.object({
-	username: z
-		.string()
-		.min(3, 'Invalid username')
-		.max(31, 'Invalid username')
-		.regex(/^[a-z0-9_-]+$/, 'Invalid username'),
-	password: z.string().min(6, 'Invalid password').max(255, 'Invalid password')
-});
+import { loginSchema } from './schema';
 
 export const load = async (event) => {
 	if (event.locals.user) {
 		redirect(302, '/');
 	}
 
-	const form = await superValidate(zod(schema));
+	const form = await superValidate(zod(loginSchema));
 	return {
 		form
 	};
@@ -28,7 +19,7 @@ export const load = async (event) => {
 
 export const actions = {
 	default: async (event) => {
-		const form = await superValidate(event.request, zod(schema));
+		const form = await superValidate(event.request, zod(loginSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });
