@@ -2,12 +2,13 @@
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { experienceSchema, type ExperienceSchema } from './schema';
+	import * as Alert from '$lib/components/ui/alert';
+	import { experienceSchema, type ExperienceSchema } from '../schema';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms/client';
+	import { AlertCircleIcon } from 'lucide-svelte';
 
 	export let data: SuperValidated<Infer<ExperienceSchema>>;
-	export let action: 'Create' | 'Edit' = 'Create';
 	const form = superForm(data, {
 		validators: zodClient(experienceSchema),
 		delayMs: 300,
@@ -17,6 +18,13 @@
 </script>
 
 <form method="post" use:enhance>
+	{#if $message}
+		<Alert.Root class="bg-green-100">
+			<AlertCircleIcon class="h-5 w-5" />
+			<Alert.Title>Success!</Alert.Title>
+			<Alert.Description>{$message}</Alert.Description>
+		</Alert.Root>
+	{/if}
 	<Form.Field {form} name="name" class="mb-8">
 		<Form.Control let:attrs>
 			<Form.Label>Name:</Form.Label>
@@ -45,5 +53,5 @@
 			<Form.FieldErrors />
 		</Form.Control>
 	</Form.Field>
-	<Form.Button variant="default" class="block w-full">{action}</Form.Button>
+	<Form.Button variant="default" class="block w-full">Create</Form.Button>
 </form>

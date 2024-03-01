@@ -1,128 +1,90 @@
 <script lang="ts">
-	import { superForm } from 'sveltekit-superforms';
+	import { Button } from '$lib/components/ui/button';
+	import * as Dialog from '$lib/components/ui/dialog';
+	import * as Card from '$lib/components/ui/card';
+	import { AlertCircle, TrashIcon } from 'lucide-svelte';
+	import * as Form from '$lib/components/ui/form';
+	import { Input } from '$lib/components/ui/input';
+	import { Textarea } from '$lib/components/ui/textarea';
+	import { experienceSchema, type ExperienceSchema } from '../schema';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms/client';
+	import { invalidate, invalidateAll } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 
 	export let data;
-
-	const { form, errors, message, enhance, delayed } = superForm(data.form, {
-		delayMs: 500,
-		timeoutMs: 3000
+	const form = superForm(data.form, {
+		validators: zodClient(experienceSchema),
+		delayMs: 300,
+		timeoutMs: 2000,
+		multipleSubmits: 'prevent',
+		resetForm: false,
+		onUpdated(event) {
+			if (event.form.message) {
+				toast(event.form.message);
+			}
+		}
 	});
-
-	let deleteModalElement: HTMLDialogElement;
+	const { form: formData, enhance } = form;
 </script>
 
-<div class="mx-auto mt-8 max-w-xl">
-	<div class="mb-4 space-y-4">
-		<h1 class="text-2xl font-bold">Edit Experience</h1>
-		{#if $message}
-			<div role="alert" class="alert alert-success">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="h-6 w-6 shrink-0 stroke-current"
-					fill="none"
-					viewBox="0 0 24 24"
-					><path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-					/></svg
-				>
-				{$message}
-			</div>
-		{/if}
-	</div>
-
-	<form class="block max-w-[600px]" action="?/update" method="post" use:enhance>
-		<div class="mb-3">
-			<label for="name" class="mb-1 inline-block font-bold">Name:</label>
-			<input
-				type="text"
-				class="input input-bordered w-full"
-				id="name"
-				name="name"
-				required
-				bind:value={$form.name}
-			/>
-			{#if $errors.name}
-				<p class="text-red-500">{$errors.name}</p>
-			{/if}
-		</div>
-		<div class="mb-3">
-			<label for="description" class="mb-1 inline-block font-bold">Description:</label>
-			<textarea
-				rows={3}
-				class="textarea textarea-bordered w-full"
-				id="description"
-				name="description"
-				required
-				bind:value={$form.description}
-			/>
-			{#if $errors.description}
-				<p class="text-red-500">{$errors.description}</p>
-			{/if}
-		</div>
-		<div class="mb-3">
-			<label for="image_url" class="mb-1 inline-block font-bold">Image Url:</label>
-			<input
-				type="url"
-				class="input input-bordered w-full"
-				id="image_url"
-				name="imageUrl"
-				required
-				bind:value={$form.imageUrl}
-			/>
-			{#if $errors.imageUrl}
-				<p class="text-red-500">{$errors.imageUrl}</p>
-			{/if}
-		</div>
-		<div class="mb-3">
-			<label for="price" class="mb-1 inline-block font-bold">Price:</label>
-			<input
-				type="number"
-				class="input input-bordered w-full"
-				id="price"
-				name="price"
-				required
-				bind:value={$form.price}
-			/>
-			{#if $errors.price}
-				<p class="text-red-500">{$errors.price}</p>
-			{/if}
-		</div>
-		<div>
-			<button type="submit" class="btn btn-neutral w-full{$delayed ? ' btn-disabled' : ''}">
-				{#if $delayed}
-					<span class="loading loading-spinner mr-2"></span>
-					Updating...
-				{:else}
-					Update Experience
-				{/if}
-			</button>
-		</div>
-	</form>
-	<div class="mt-4 text-center">
-		<button
-			type="button"
-			class="btn btn-link text-error {$delayed ? 'btn-disabled' : ''}"
-			on:click={() => deleteModalElement.showModal()}
-		>
-			Delete Experience
-		</button>
-	</div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<dialog class="modal" bind:this={deleteModalElement}>
-	<div class="modal-box">
-		<p>Are you sure you want to delete this experience?</p>
-		<div class="modal-action">
-			<form action="?/delete" method="post">
-				<button type="submit" class="btn btn-error">Yes, Delete.</button>
-			</form>
-			<form method="dialog">
-				<button class="btn">No, Cancel.</button>
-			</form>
-		</div>
-	</div>
-</dialog>
+<Card.Root class="mx-auto max-w-xl">
+	<Card.Header>
+		<Card.Title tag="h1" class="text-2xl">Edit Experience</Card.Title>
+	</Card.Header>
+	<Card.Content>
+		<form method="post" action="?/update" use:enhance>
+			<Form.Field {form} name="name" class="mb-8">
+				<Form.Control let:attrs>
+					<Form.Label>Name:</Form.Label>
+					<Input {...attrs} bind:value={$formData.name} />
+					<Form.FieldErrors />
+				</Form.Control>
+			</Form.Field>
+			<Form.Field {form} name="imageUrl" class="mb-8">
+				<Form.Control let:attrs>
+					<Form.Label>Image URL:</Form.Label>
+					<Input {...attrs} type="url" bind:value={$formData.imageUrl} />
+					<Form.FieldErrors />
+				</Form.Control>
+			</Form.Field>
+			<Form.Field {form} name="price" class="mb-8">
+				<Form.Control let:attrs>
+					<Form.Label>Price:</Form.Label>
+					<Input {...attrs} type="number" bind:value={$formData.price} />
+					<Form.FieldErrors />
+				</Form.Control>
+			</Form.Field>
+			<Form.Field {form} name="description" class="mb-8">
+				<Form.Control let:attrs>
+					<Form.Label>Description:</Form.Label>
+					<Textarea {...attrs} bind:value={$formData.description} rows={10} />
+					<Form.FieldErrors />
+				</Form.Control>
+			</Form.Field>
+			<Form.Button variant="default" class="block w-full">Update this experience</Form.Button>
+		</form>
+		<Dialog.Root>
+			<Dialog.Trigger class="mt-4 block w-full">
+				<Button variant="secondary" class="flex w-full">
+					<TrashIcon class="mr-2 h-4 w-4" />
+					<span>Delete</span>
+				</Button>
+			</Dialog.Trigger>
+			<Dialog.Content>
+				<Dialog.Title>Are you sure you want to delete this experience?</Dialog.Title>
+				<Dialog.Description>
+					<form action="?/delete" method="post">
+						<Button type="submit" variant="destructive">Yes, Delete.</Button>
+					</form>
+				</Dialog.Description>
+				<Dialog.Footer>
+					<div class="flex items-center gap-1 text-orange-600">
+						<AlertCircle class="h-4 w-4" />
+						This action cannot be undone.
+					</div>
+				</Dialog.Footer>
+			</Dialog.Content>
+		</Dialog.Root>
+	</Card.Content>
+</Card.Root>

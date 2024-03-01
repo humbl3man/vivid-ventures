@@ -1,27 +1,8 @@
 import prisma from '$lib/prisma.js';
-import delay from '$utils/delay';
 import { error, redirect } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { z } from 'zod';
-
-const schema = z.object({
-	name: z
-		.string()
-		.min(5, 'Name must be at least 5 characters')
-		.max(100, 'Name must be no longer than 100 characters'),
-	description: z
-		.string()
-		.min(5, 'Description must be at least 5 characters')
-		.max(10000, 'Description must be no longer than 10000 characters'),
-	price: z
-		.number({
-			required_error: 'Price is required'
-		})
-		.min(3, 'Please enter minimum of 3 digits')
-		.default(999),
-	imageUrl: z.string().url('Please enter a valid url').default('https://www.example.com')
-});
+import { experienceSchema } from '../schema';
 
 export const load = async ({ params }) => {
 	const experience = await prisma.experience.findUnique({
@@ -36,7 +17,9 @@ export const load = async ({ params }) => {
 		});
 	}
 
-	const form = await superValidate(experience, zod(schema));
+	const form = await superValidate(experience, zod(experienceSchema), {
+		id: 'createForm'
+	});
 
 	return {
 		form
@@ -45,7 +28,7 @@ export const load = async ({ params }) => {
 
 export const actions = {
 	update: async ({ request, params }) => {
-		const form = await superValidate(request, zod(schema));
+		const form = await superValidate(request, zod(experienceSchema));
 
 		if (!form.valid) {
 			return {
@@ -65,7 +48,7 @@ export const actions = {
 			}
 		});
 
-		return message(form, 'Experience updated');
+		return message(form, 'Successfuly updated');
 	},
 	delete: async ({ params }) => {
 		await prisma.experience.delete({
