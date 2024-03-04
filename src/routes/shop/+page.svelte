@@ -2,7 +2,6 @@
 	import ExperienceCard from '$lib/components/ExperienceCard.svelte';
 
 	export let data;
-	$: console.log('data');
 </script>
 
 <h1 class="mb-16">Experiences</h1>
