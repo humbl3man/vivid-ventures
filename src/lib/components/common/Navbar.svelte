@@ -3,7 +3,10 @@
 	import * as Avatar from '$lib/components/ui/avatar';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Role } from '@prisma/client';
-	import Button from '../ui/button/button.svelte';
+	import { Button } from '$lib/components/ui/button';
+	import Sun from 'lucide-svelte/icons/sun';
+	import Moon from 'lucide-svelte/icons/moon';
+	import { toggleMode } from 'mode-watcher';
 
 	$: shortenedName = $page.data.username?.charAt(0).toUpperCase();
 </script>
@@ -12,11 +15,21 @@
 	<div class="mx-auto flex max-w-screen-2xl items-center justify-between">
 		<a href="/" class="text-2xl font-bold">Vivid Ventures</a>
 		<nav class="flex gap-6">
-			<a href="/" class="link no-underline">Shop</a>
+			<a href="/shop" class="link no-underline">Shop</a>
 			<a href="/about" class="link no-underline">About</a>
 		</nav>
-		{#if $page.data.username}
-			<div class="flex items-center gap-4">
+
+		<div class="flex items-center gap-2">
+			<Button on:click={toggleMode} variant="ghost" size="icon">
+				<Sun
+					class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+				/>
+				<Moon
+					class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+				/>
+				<span class="sr-only">Toggle theme</span>
+			</Button>
+			{#if $page.data.username}
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						<Avatar.Root>
@@ -49,12 +62,10 @@
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
-			</div>
-		{:else}
-			<div class="flex gap-2">
+			{:else}
 				<Button href="/login" size="sm" variant="default">Login</Button>
 				<Button href="/sign-up" size="sm" variant="secondary">Sign Up</Button>
-			</div>
-		{/if}
+			{/if}
+		</div>
 	</div>
 </div>

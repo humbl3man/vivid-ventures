@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import Navbar from '$lib/components/common/Navbar.svelte';
+	import { ModeWatcher } from 'mode-watcher';
 	import { Toaster } from '$lib/components/ui/sonner';
+
+	import Navbar from '$lib/components/common/Navbar.svelte';
+
 	import '../app.css';
 </script>
 
@@ -14,4 +17,5 @@
 	</main>
 </div>
 
+<ModeWatcher />
 <Toaster />
