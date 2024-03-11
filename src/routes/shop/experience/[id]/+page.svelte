@@ -19,10 +19,13 @@
 		<h2 class="mb-6 flex items-start text-4xl">
 			{formatPrice(price)} <span class="ml-2 text-base font-normal"> per person</span>
 		</h2>
+		<!-- add to bag -->
 		<div class="mb-12">
-			<Button class="inline-flex items-center" variant="default" size="lg"
-				><ShoppingCartIcon class="mr-2 inline-block h-6 w-6" /> Add To Cart</Button
-			>
+			<form method="post" action="?/addToBag">
+				<Button type="submit" class="inline-flex items-center" variant="default" size="lg"
+					><ShoppingCartIcon class="mr-2 inline-block h-6 w-6" /> Add To Bag</Button
+				>
+			</form>
 		</div>
 		<Collapsible.Root>
 			<Collapsible.Trigger asChild let:builder>

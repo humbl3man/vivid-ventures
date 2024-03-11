@@ -7,16 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model Experience {
-  id          BigInt   @id @default(autoincrement())
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  name        String
-  description String
-  price       Int
-  imageUrl    String   @map("image_url")
+enum Role {
+  USER
+  ADMIN
 }
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
 model User {
   id              String    @id
@@ -26,6 +22,7 @@ model User {
   sessions        Session[]
   role            Role      @default(USER)
   avatar_url      String?
+  cart            Cart?
 }
 
 model Session {
@@ -35,7 +32,31 @@ model Session {
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 }
 
-enum Role {
-  USER
-  ADMIN
+model Experience {
+  id          BigInt    @id @default(autoincrement())
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  name        String
+  description String
+  price       Int
+  imageUrl    String    @map("image_url")
+  isAvailable Boolean   @default(true)
+  cartItem    CartItem?
+}
+
+model Cart {
+  id     BigInt     @id @unique @default(autoincrement())
+  name   String?
+  user   User       @relation(fields: [userId], references: [id])
+  userId String     @unique
+  items  CartItem[]
+}
+
+model CartItem {
+  id           BigInt     @id @default(autoincrement())
+  quantity     Int
+  Cart         Cart       @relation(fields: [cartId], references: [id])
+  cartId       BigInt
+  experienceId BigInt     @unique
+  experience   Experience @relation(fields: [experienceId], references: [id])
 }

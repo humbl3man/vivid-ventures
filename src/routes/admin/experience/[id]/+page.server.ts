@@ -1,5 +1,5 @@
 import prisma from '$lib/prisma.js';
-import { error, redirect } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { experienceSchema } from '../schema';
@@ -17,12 +17,11 @@ export const load = async ({ params }) => {
 		});
 	}
 
-	const form = await superValidate(experience, zod(experienceSchema), {
-		id: 'createForm'
-	});
+	const form = await superValidate(experience, zod(experienceSchema));
 
 	return {
-		form
+		form,
+		isExperienceAvailable: experience.isAvailable
 	};
 };
 
@@ -50,13 +49,24 @@ export const actions = {
 
 		return message(form, 'Successfuly updated');
 	},
-	delete: async ({ params }) => {
-		await prisma.experience.delete({
+	deactivate: async ({ params }) => {
+		await prisma.experience.update({
 			where: {
 				id: Number(params.id)
+			},
+			data: {
+				isAvailable: false
 			}
 		});
-
-		redirect(302, '/admin');
+	},
+	reactivate: async ({ params }) => {
+		await prisma.experience.update({
+			where: {
+				id: Number(params.id)
+			},
+			data: {
+				isAvailable: true
+			}
+		});
 	}
 };

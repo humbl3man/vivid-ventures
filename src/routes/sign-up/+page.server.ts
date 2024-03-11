@@ -17,8 +17,9 @@ const schema = z.object({
 });
 
 export const load = async (event) => {
+	// if user is already logged in, redirect to user dashboard
 	if (event.locals.user) {
-		redirect(302, '/');
+		redirect(302, '/dashboard');
 	}
 
 	const form = await superValidate(zod(schema));
@@ -54,7 +55,10 @@ export const actions = {
 					id: userId,
 					username: form.data.username,
 					name: form.data.username,
-					hashed_password: hashedPassword
+					hashed_password: hashedPassword,
+					cart: {
+						create: {}
+					}
 				}
 			});
 

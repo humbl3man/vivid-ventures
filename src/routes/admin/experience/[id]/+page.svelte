@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import * as Card from '$lib/components/ui/card';
 	import { AlertCircle, TrashIcon } from 'lucide-svelte';
 	import * as Form from '$lib/components/ui/form';
@@ -9,8 +9,10 @@
 	import { experienceSchema, type ExperienceSchema } from '../schema';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms/client';
-	import { invalidate, invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
+	import * as Alert from '$lib/components/ui/alert';
+	import { applyAction, enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 
 	export let data;
 	const form = superForm(data.form, {
@@ -25,7 +27,9 @@
 			}
 		}
 	});
-	const { form: formData, enhance } = form;
+	const { form: formData, enhance: updateFormEnhance } = form;
+	let isToggleAvailabilityFormSubmitting = false;
+	$: ({ isExperienceAvailable: isAvailable } = data);
 </script>
 
 <Card.Root class="mx-auto max-w-xl">
@@ -33,58 +37,87 @@
 		<Card.Title tag="h1" class="text-2xl">Edit Experience</Card.Title>
 	</Card.Header>
 	<Card.Content>
-		<form method="post" action="?/update" use:enhance>
+		<form method="post" action="?/update" use:updateFormEnhance>
 			<Form.Field {form} name="name" class="mb-8">
 				<Form.Control let:attrs>
 					<Form.Label>Name:</Form.Label>
-					<Input {...attrs} bind:value={$formData.name} />
+					<Input {...attrs} bind:value={$formData.name} disabled={!isAvailable} />
 					<Form.FieldErrors />
 				</Form.Control>
 			</Form.Field>
 			<Form.Field {form} name="imageUrl" class="mb-8">
 				<Form.Control let:attrs>
 					<Form.Label>Image URL:</Form.Label>
-					<Input {...attrs} type="url" bind:value={$formData.imageUrl} />
+					<Input {...attrs} type="url" bind:value={$formData.imageUrl} disabled={!isAvailable} />
 					<Form.FieldErrors />
 				</Form.Control>
 			</Form.Field>
 			<Form.Field {form} name="price" class="mb-8">
 				<Form.Control let:attrs>
 					<Form.Label>Price:</Form.Label>
-					<Input {...attrs} type="number" bind:value={$formData.price} />
+					<Input {...attrs} type="number" bind:value={$formData.price} disabled={!isAvailable} />
 					<Form.FieldErrors />
 				</Form.Control>
 			</Form.Field>
 			<Form.Field {form} name="description" class="mb-8">
 				<Form.Control let:attrs>
 					<Form.Label>Description:</Form.Label>
-					<Textarea {...attrs} bind:value={$formData.description} rows={10} />
+					<Textarea
+						{...attrs}
+						bind:value={$formData.description}
+						rows={10}
+						disabled={!isAvailable}
+					/>
 					<Form.FieldErrors />
 				</Form.Control>
 			</Form.Field>
-			<Form.Button variant="default" class="block w-full">Update this experience</Form.Button>
+			{#if isAvailable}
+				<Form.Button variant="default" class="block w-full">Update this experience</Form.Button>
+			{/if}
 		</form>
-		<Dialog.Root>
-			<Dialog.Trigger class="mt-4 block w-full">
-				<Button variant="secondary" class="flex w-full">
-					<TrashIcon class="mr-2 h-4 w-4" />
-					<span>Delete</span>
+		{#if !isAvailable}
+			<Alert.Root variant="destructive">
+				<AlertCircle class="h-4 w-4" />
+				<Alert.Title>Experience is not active.</Alert.Title>
+				<Alert.Description>This experience has been disabled.</Alert.Description>
+			</Alert.Root>
+		{/if}
+		<AlertDialog.Root>
+			<AlertDialog.Trigger class="mt-4 block w-full">
+				<Button variant="outline" class="flex w-full">
+					{#if isAvailable}
+						<span>Deactivate this experience</span>
+					{:else}
+						<span>Re-activate this experience</span>
+					{/if}
 				</Button>
-			</Dialog.Trigger>
-			<Dialog.Content>
-				<Dialog.Title>Are you sure you want to delete this experience?</Dialog.Title>
-				<Dialog.Description>
-					<form action="?/delete" method="post">
-						<Button type="submit" variant="destructive">Yes, Delete.</Button>
+			</AlertDialog.Trigger>
+			<AlertDialog.Content>
+				<AlertDialog.Header>
+					<AlertDialog.Description
+						>Are you sure you want to {isAvailable ? 'deactivate' : 're-activate'} this experience?</AlertDialog.Description
+					>
+				</AlertDialog.Header>
+				<AlertDialog.Footer>
+					<form
+						action={isAvailable ? '?/deactivate' : '?/reactivate'}
+						method="post"
+						use:enhance={() => {
+							isToggleAvailabilityFormSubmitting = true;
+							return async ({ result }) => {
+								await applyAction(result);
+								isToggleAvailabilityFormSubmitting = false;
+								invalidateAll();
+							};
+						}}
+					>
+						<AlertDialog.Action type="submit" disabled={isToggleAvailabilityFormSubmitting}
+							>Yes, {isAvailable ? 'Deactivate' : 'Re-activate'} it.</AlertDialog.Action
+						>
 					</form>
-				</Dialog.Description>
-				<Dialog.Footer>
-					<div class="flex items-center gap-1 text-orange-600">
-						<AlertCircle class="h-4 w-4" />
-						This action cannot be undone.
-					</div>
-				</Dialog.Footer>
-			</Dialog.Content>
-		</Dialog.Root>
+					<AlertDialog.Cancel>No, Cancel.</AlertDialog.Cancel>
+				</AlertDialog.Footer>
+			</AlertDialog.Content>
+		</AlertDialog.Root>
 	</Card.Content>
 </Card.Root>
