@@ -1,12 +1,9 @@
-import { invalidateAll } from '$app/navigation';
 import prisma from '$lib/prisma.js';
 import { redirect } from '@sveltejs/kit';
 
-export const load = async (event) => {
+export const load = async () => {
 	const experiences = await prisma.experience.findMany();
 	const users = await prisma.user.findMany();
-
-	console.log('loading ADMIN route');
 
 	return {
 		experiences,
