@@ -1,9 +1,4 @@
-<div class="grid gap-10 md:grid-cols-2">
-	<img
-		class="md:object-fit max-h-[300px] max-w-full object-cover md:max-h-full"
-		src="https://images.unsplash.com/photo-1517572856894-3c19f3bffa0e?q=80&w=3744&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-		alt=""
-	/>
+<div class="max-w-screen-lg">
 	<div>
 		<h1 class="mb-12">About Vivid Ventures</h1>
 		<div class="space-y-6">
