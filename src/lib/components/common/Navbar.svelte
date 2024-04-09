@@ -7,8 +7,10 @@
 	import Sun from 'lucide-svelte/icons/sun';
 	import Moon from 'lucide-svelte/icons/moon';
 	import { toggleMode } from 'mode-watcher';
+	import { ShoppingCartIcon } from 'lucide-svelte';
 
 	$: shortenedName = $page.data.username?.charAt(0).toUpperCase();
+	$: userLoggedIn = Boolean($page.data.username);
 </script>
 
 <div class="p-4">
@@ -29,7 +31,7 @@
 				/>
 				<span class="sr-only">Toggle theme</span>
 			</Button>
-			{#if $page.data.username}
+			{#if userLoggedIn}
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						<Avatar.Root>
@@ -62,6 +64,15 @@
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
+				<a href="/cart" class="inline-flex items-center gap-1">
+					<ShoppingCartIcon />
+					{#if $page.data.cartItemsCount > 0}
+						<span
+							class="inline-flex h-3 w-3 -translate-x-[12px] items-center justify-center rounded-full bg-primary p-2 text-[12px] text-white"
+							>{$page.data.cartItemsCount}</span
+						>
+					{/if}
+				</a>
 			{:else}
 				<Button href="/login" size="sm" variant="default">Login</Button>
 				<Button href="/sign-up" size="sm" variant="secondary">Sign Up</Button>
