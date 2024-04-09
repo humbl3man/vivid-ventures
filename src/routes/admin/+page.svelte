@@ -11,12 +11,18 @@
 
 	export let data;
 
+	const queryParam = $page.url.searchParams.get('target');
+	const targetSelected =
+		queryParam && (queryParam === 'experiences' || queryParam === 'users')
+			? queryParam
+			: 'experiences';
+
 	$: ({ experiences, users } = data);
 </script>
 
 <h1 class="mb-4 text-4xl font-bold">Admin Tools</h1>
 
-<Tabs.Root value="experiences">
+<Tabs.Root value={targetSelected}>
 	<Tabs.List class="mb-8">
 		<Tabs.Trigger value="experiences">Experiences</Tabs.Trigger>
 		<Tabs.Trigger value="users">Users</Tabs.Trigger>
