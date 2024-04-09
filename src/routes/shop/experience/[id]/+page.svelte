@@ -1,10 +1,13 @@
 <script lang="ts">
+	import * as Alert from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
 	import * as Collapsible from '$lib/components/ui/collapsible';
 	import formatPrice from '$utils/formatPrice';
-	import { ChevronDown, ChevronUp, ShoppingCartIcon } from 'lucide-svelte';
+	import { AlertCircle, ChevronDown, ChevronUp, ShoppingCartIcon } from 'lucide-svelte';
 
 	export let data;
+	$: ({ username } = data);
+	$: isLoggedIn = !!username;
 	$: ({ name, description, price, imageUrl } = data.experience);
 </script>
 
@@ -20,13 +23,23 @@
 			{formatPrice(price)} <span class="ml-2 text-base font-normal"> per person</span>
 		</h2>
 		<!-- add to bag -->
-		<div class="mb-12">
-			<form method="post" action="?/addToBag">
-				<Button type="submit" class="inline-flex items-center" variant="default" size="lg"
-					><ShoppingCartIcon class="mr-2 inline-block h-6 w-6" /> Add To Bag</Button
+		{#if isLoggedIn}
+			<div class="mb-12">
+				<form method="post" action="?/addToBag">
+					<Button type="submit" class="inline-flex items-center" variant="default" size="lg"
+						><ShoppingCartIcon class="mr-2 inline-block h-6 w-6" /> Add To Bag</Button
+					>
+				</form>
+			</div>
+		{:else}
+			<Alert.Root class="mb-12 border-orange-600 bg-orange-50 ">
+				<AlertCircle class="t-0 r-0 h-6 w-6 " />
+				<Alert.Title class="text-orange-800">We are sorry</Alert.Title>
+				<Alert.Description class="text-orange-800"
+					>Add To Cart is only available to logged in users.</Alert.Description
 				>
-			</form>
-		</div>
+			</Alert.Root>
+		{/if}
 		<Collapsible.Root>
 			<Collapsible.Trigger asChild let:builder>
 				{@const isOpen = builder['data-state'] === 'open'}

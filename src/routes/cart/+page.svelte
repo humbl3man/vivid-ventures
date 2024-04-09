@@ -1,6 +1,9 @@
 <script lang="ts">
 	import formatPrice from '$utils/formatPrice';
 	import * as Alert from '$lib/components/ui/alert';
+	import { AlertCircle, CircleDashed, Trash2Icon } from 'lucide-svelte';
+	import FormButton from '$lib/components/ui/form/form-button.svelte';
+	import { enhance } from '$app/forms';
 
 	export let data;
 	$: ({ userCart } = data);
@@ -12,8 +15,8 @@
 
 {#if cartHasIssues}
 	<Alert.Root variant="destructive" class="my-16">
+		<AlertCircle />
 		<Alert.Title>There are issues with your cart</Alert.Title>
-		<Alert.Description>This experience is no longer available.</Alert.Description>
 	</Alert.Root>
 {/if}
 
@@ -29,14 +32,17 @@
 				/>
 			</figure>
 			<div>
-				<div class="mb-2 text-xl font-semibold">{item.experience.name}</div>
-				<div>{formattedPrice}</div>
+				<div class="name mb-2 text-xl font-semibold">{item.experience.name}</div>
+				<div class="price">{formattedPrice}</div>
 				{#if !item.experience.isAvailable}
-					<Alert.Root variant="destructive" class="inline-block w-auto">
-						<Alert.Title>Unavailable</Alert.Title>
-						<Alert.Description>This experience is no longer available.</Alert.Description>
-					</Alert.Root>
+					<p class="error text-red-600">This experience is no longer available.</p>
 				{/if}
+				<form action="?/remove" method="post" use:enhance>
+					<input type="hidden" name="experience_id" value={item.experience.id} />
+					<FormButton variant="secondary" size="sm" class="mt-2"
+						><Trash2Icon class="mr-2" /> Remove From Cart</FormButton
+					>
+				</form>
 			</div>
 		</div>
 	{/each}
@@ -46,5 +52,11 @@
 	.cart-item {
 		@apply grid gap-[2rem] pt-4;
 		grid-template-columns: 300px 1fr;
+	}
+
+	.cart-item:has(.error) img,
+	.cart-item:has(.error) .name,
+	.cart-item:has(.error) .price {
+		@apply opacity-30;
 	}
 </style>
