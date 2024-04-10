@@ -13,7 +13,11 @@ export const load = async (event) => {
 				items: true
 			}
 		});
-		cartItemsCount = cart?.items.length ?? 0;
+		cartItemsCount =
+			cart?.items?.reduce((totalQty, item) => {
+				totalQty += item.quantity;
+				return totalQty;
+			}, 0) ?? 0;
 	}
 
 	return {
