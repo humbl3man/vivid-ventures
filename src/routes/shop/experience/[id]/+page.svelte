@@ -25,7 +25,7 @@
 		<!-- add to bag -->
 		{#if isLoggedIn}
 			<div class="mb-12">
-				<form method="post" action="?/addToBag">
+				<form method="post" action="?/addToCart">
 					<Button type="submit" class="inline-flex items-center" variant="default" size="lg"
 						><ShoppingCartIcon class="mr-2 inline-block h-6 w-6" /> Add To Bag</Button
 					>

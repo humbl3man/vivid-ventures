@@ -10,9 +10,15 @@ export const load = async ({ params }) => {
 			name: true,
 			description: true,
 			imageUrl: true,
-			price: true
+			price: true,
+			isAvailable: true
 		}
 	});
+
+	// redirect users from unavailable experiences
+	if (!experienceFound?.isAvailable) {
+		redirect(303, '/shop');
+	}
 
 	if (!experienceFound) {
 		error(404, {
@@ -26,11 +32,14 @@ export const load = async ({ params }) => {
 };
 
 export const actions = {
-	addToBag: async (event) => {
+	addToCart: async (event) => {
 		if (!event.locals.user) {
 			redirect(302, event.url);
 		}
 
+		// update cart
+		// if item is new, add
+		// if item already exists, increment quantity
 		await prisma.cart.update({
 			where: {
 				userId: event.locals.user.id
@@ -39,7 +48,7 @@ export const actions = {
 				items: {
 					upsert: {
 						where: {
-							id: +event.params.id
+							experienceId: +event.params.id
 						},
 						update: {
 							quantity: {
