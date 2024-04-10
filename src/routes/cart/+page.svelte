@@ -23,18 +23,29 @@
 <section class="mt-16 space-y-10 border-t pt-8">
 	{#each cartItems as item (item.id)}
 		{@const formattedPrice = formatPrice(item.experience.price)}
+		{@const isAvailable = item.experience.isAvailable}
 		<div class="cart-item">
 			<figure>
-				<img
-					class="rounded-md object-contain"
-					src={item.experience.imageUrl}
-					alt={item.experience.name}
-				/>
+				{#if isAvailable}
+					<a href="/shop/experience/{item.experience.id}">
+						<img
+							class="rounded-md object-contain"
+							src={item.experience.imageUrl}
+							alt={item.experience.name}
+						/>
+					</a>
+				{:else}
+					<img
+						class="rounded-md object-contain"
+						src={item.experience.imageUrl}
+						alt={item.experience.name}
+					/>
+				{/if}
 			</figure>
 			<div>
 				<div class="name mb-2 text-xl font-semibold">{item.experience.name}</div>
 				<div class="price">{formattedPrice}</div>
-				{#if !item.experience.isAvailable}
+				{#if !isAvailable}
 					<p class="error text-red-600">This experience is no longer available.</p>
 				{/if}
 				<form action="?/remove" method="post" use:enhance>
@@ -43,6 +54,7 @@
 						><Trash2Icon class="mr-2" /> Remove From Cart</FormButton
 					>
 				</form>
+				<div>Quantity: {item.quantity}</div>
 			</div>
 		</div>
 	{/each}
