@@ -67,8 +67,7 @@
 				<a href="/cart" class="inline-flex items-center gap-1">
 					<ShoppingCartIcon />
 					{#if $page.data.cartItemsCount > 0}
-						<span
-							class="inline-flex h-3 w-3 -translate-x-[12px] items-center justify-center rounded-full bg-primary p-2 text-[12px] text-white"
+						<span class="-translate-x-[2px] items-center justify-center text-xs text-foreground"
 							>{$page.data.cartItemsCount}</span
 						>
 					{/if}
