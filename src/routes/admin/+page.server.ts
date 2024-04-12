@@ -2,7 +2,11 @@ import prisma from '$lib/prisma.js';
 import { redirect } from '@sveltejs/kit';
 
 export const load = async () => {
-	const experiences = await prisma.experience.findMany();
+	const experiences = await prisma.experience.findMany({
+		orderBy: {
+			id: 'asc'
+		}
+	});
 	const users = await prisma.user.findMany();
 
 	return {

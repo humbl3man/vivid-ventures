@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { Role } from '@prisma/client';
-	import { applyAction, enhance } from '$app/forms';
-	import { invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
 	import formatPrice from '$utils/formatPrice';
 	import formatDate from '$utils/formatDate';
@@ -11,23 +9,29 @@
 
 	export let data;
 
-	const queryParam = $page.url.searchParams.get('target');
-	const targetSelected =
-		queryParam && (queryParam === 'experiences' || queryParam === 'users')
-			? queryParam
-			: 'experiences';
+	enum ContentType {
+		EXPERIENCES = 'experiences',
+		USERS = 'users'
+	}
+
+	const contentTypeQuery = $page.url.searchParams.get('content_type');
+	const contentTypeSelected =
+		contentTypeQuery &&
+		(contentTypeQuery === ContentType.EXPERIENCES || contentTypeQuery === ContentType.USERS)
+			? contentTypeQuery
+			: ContentType.EXPERIENCES;
 
 	$: ({ experiences, users } = data);
 </script>
 
 <h1 class="mb-4 text-4xl font-bold">Admin Tools</h1>
 
-<Tabs.Root value={targetSelected}>
+<Tabs.Root value={contentTypeSelected}>
 	<Tabs.List class="mb-8">
 		<Tabs.Trigger value="experiences">Experiences</Tabs.Trigger>
 		<Tabs.Trigger value="users">Users</Tabs.Trigger>
 	</Tabs.List>
-	<Tabs.Content value="experiences">
+	<Tabs.Content value={ContentType.EXPERIENCES}>
 		<div class="my-4">
 			<Button href="/admin/experience/create" variant="secondary">Create Experience +</Button>
 		</div>
@@ -46,9 +50,13 @@
 			<Table.Body>
 				{#each experiences as experience (experience.id)}
 					{@const editURL = `/admin/experience/${experience.id}`}
-					<Table.Row>
+					<Table.Row class={experience.isAvailable ? '' : 'opacity-40'}>
 						<Table.Cell>{experience.id}</Table.Cell>
-						<Table.Cell>{experience.name}</Table.Cell>
+						<Table.Cell
+							>{experience.name}
+							{#if !experience.isAvailable}<span class="ml-2 text-red-600">Unavailable</span
+								>{/if}</Table.Cell
+						>
 						<Table.Cell>{formatPrice(experience.price)}</Table.Cell>
 						<Table.Cell>{formatDate(experience.createdAt)}</Table.Cell>
 						<Table.Cell>{formatDate(experience.updatedAt)}</Table.Cell>
@@ -60,7 +68,7 @@
 			</Table.Body>
 		</Table.Root>
 	</Tabs.Content>
-	<Tabs.Content value="users">
+	<Tabs.Content value={ContentType.USERS}>
 		<Table.Root>
 			<Table.Header>
 				<Table.Row>
