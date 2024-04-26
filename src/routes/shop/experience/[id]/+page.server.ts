@@ -15,11 +15,6 @@ export const load = async ({ params }) => {
 		}
 	});
 
-	// redirect users from unavailable experiences
-	if (!experienceFound?.isAvailable) {
-		redirect(303, '/shop');
-	}
-
 	if (!experienceFound) {
 		error(404, {
 			message: 'Experience not found'
